@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小红书AI工作流 - 项目待办与进展追踪</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #f8f9fb;
+    --card: #ffffff;
+    --border: #e8eaed;
+    --border-light: #f1f3f5;
+    --text-primary: #1a1d21;
+    --text-secondary: #5f6368;
+    --text-muted: #9aa0a6;
+    --green: #1e8e3e;
+    --green-bg: #e6f4ea;
+    --blue: #1a73e8;
+    --blue-bg: #e8f0fe;
+    --amber: #e37400;
+    --amber-bg: #fef7e0;
+    --amber-bg-row: #fffdf6;
+    --red: #d93025;
+    --red-bg: #fce8e6;
+    --gray: #80868b;
+    --gray-bg: #f1f3f4;
+    --purple: #7c3aed;
+    --purple-bg: #f3e8ff;
+    --done-row: #f9fafb;
+    --radius: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* -- Header -- */
+  .header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 28px 16px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .header h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+  .header .updated { font-size: 12px; color: var(--text-muted); }
+
+  /* -- Stats -- */
+  .stats { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .stat {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 12px;
+    font-size: 12px; font-weight: 500;
+  }
+  .stat .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .stat-done { background: var(--green-bg); color: var(--green); }
+  .stat-done .dot { background: var(--green); }
+  .stat-wip { background: var(--blue-bg); color: var(--blue); }
+  .stat-wip .dot { background: var(--blue); }
+  .stat-todo { background: var(--gray-bg); color: var(--text-secondary); }
+  .stat-todo .dot { background: var(--gray); }
+  .stat-new { background: var(--amber-bg); color: var(--amber); }
+  .stat-new .dot { background: var(--amber); }
+
+  /* -- Filters -- */
+  .filters { display: flex; gap: 20px; margin-top: 12px; flex-wrap: wrap; }
+  .filter-group { display: flex; align-items: center; gap: 4px; }
+  .filter-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px; }
+  .fbtn {
+    padding: 3px 10px; border-radius: 6px; border: 1px solid transparent;
+    background: transparent; font-size: 12px; font-weight: 500;
+    cursor: pointer; color: var(--text-secondary); transition: all 0.12s;
+  }
+  .fbtn:hover { background: var(--gray-bg); }
+  .fbtn.active { background: var(--text-primary); color: #fff; }
+
+  /* -- Content -- */
+  .content { max-width: 1200px; margin: 0 auto; padding: 16px 20px 48px; }
+
+  /* -- Section -- */
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .sec-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; cursor: pointer; user-select: none;
+  }
+  .sec-head:hover { background: #fafbfc; }
+  .sec-head h2 { font-size: 13px; font-weight: 700; letter-spacing: -0.2px; }
+  .sec-head .cnt {
+    font-size: 11px; font-weight: 500; color: var(--text-muted);
+    background: var(--gray-bg); padding: 1px 8px; border-radius: 10px;
+  }
+  .sec-head .arrow { font-size: 10px; color: var(--text-muted); transition: transform 0.2s; margin-left: 8px; }
+  .sec-head.collapsed .arrow { transform: rotate(-90deg); }
+  .sec-body { border-top: 1px solid var(--border-light); }
+  .sec-head.collapsed + .sec-body { display: none; }
+
+  /* -- Table -- */
+  .t { width: 100%; border-collapse: collapse; }
+  .t th {
+    padding: 7px 12px; text-align: left;
+    font-size: 11px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.4px;
+    background: #fafbfc; border-bottom: 1px solid var(--border-light);
+    white-space: nowrap;
+  }
+  .t td {
+    padding: 9px 12px; border-bottom: 1px solid var(--border-light);
+    font-size: 12.5px; vertical-align: top;
+  }
+  .t tbody tr:last-child td { border-bottom: none; }
+
+  /* group header */
+  .grp td {
+    font-size: 12px; font-weight: 600; color: var(--text-secondary);
+    padding: 7px 12px; background: #f8f9fb;
+    letter-spacing: -0.1px;
+  }
+
+  /* item row */
+  .t .item td:first-child { padding-left: 24px; }
+  .item { transition: background 0.1s; }
+  .item:hover { background: #f8f9fb; }
+
+  /* status left bar */
+  .item.s-done { box-shadow: inset 3px 0 0 var(--green); }
+  .item.s-wip { box-shadow: inset 3px 0 0 var(--blue); }
+  .item.s-todo { box-shadow: inset 3px 0 0 var(--border); }
+  .item.s-low { box-shadow: inset 3px 0 0 var(--text-muted); }
+  .item.s-confirmed { box-shadow: inset 3px 0 0 var(--purple); }
+  .item.s-delayed { box-shadow: inset 3px 0 0 var(--red); }
+
+  /* completed row: muted style */
+  .item.s-done, .item.s-confirmed {
+    background: var(--done-row);
+  }
+  .item.s-done td, .item.s-confirmed td {
+    color: var(--text-muted);
+  }
+  .item.s-done .item-name, .item.s-confirmed .item-name {
+    color: var(--text-secondary);
+  }
+  .item.s-done:hover, .item.s-confirmed:hover {
+    background: #f3f4f6;
+  }
+
+  /* latest update row highlight (overrides done gray if both) */
+  .item.is-new { background: var(--amber-bg-row); }
+  .item.is-new:hover { background: #fff9eb; }
+  .item.is-new td { color: var(--text-primary); }
+  .item.is-new .item-name { color: var(--text-primary); }
+
+  /* badge */
+  .badge {
+    display: inline-block; padding: 2px 7px; border-radius: 4px;
+    font-size: 11px; font-weight: 600; white-space: nowrap;
+    line-height: 1.4;
+  }
+  .b-done { background: var(--green-bg); color: var(--green); }
+  .b-wip { background: var(--blue-bg); color: var(--blue); }
+  .b-todo { background: var(--gray-bg); color: var(--text-secondary); }
+  .b-low { background: var(--gray-bg); color: var(--text-muted); }
+  .b-confirmed { background: var(--purple-bg); color: var(--purple); }
+  .b-delayed { background: var(--red-bg); color: var(--red); }
+
+  /* owner */
+  .owner {
+    display: inline-block; padding: 2px 7px; border-radius: 4px;
+    font-size: 11px; font-weight: 500; white-space: nowrap;
+  }
+  .o-tech { background: #e8f0fe; color: #174ea6; }
+  .o-mkt { background: #fce8e6; color: #c5221f; }
+  .o-both { background: #f3e8ff; color: #7c3aed; }
+  .o-taz { background: var(--amber-bg); color: #b45309; }
+  .o-wangzai { background: #e0f2fe; color: #0369a1; }
+  .o-all { background: var(--gray-bg); color: var(--text-secondary); }
+
+  .item-name { color: var(--text-primary); font-weight: 500; }
+  .progress { color: var(--text-secondary); line-height: 1.5; }
+  .progress strong { color: var(--text-primary); font-weight: 600; }
+  .date { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+
+  /* update tag */
+  .upd-tag {
+    display: inline-block; padding: 1px 6px; border-radius: 3px;
+    font-size: 10px; font-weight: 500; white-space: nowrap; line-height: 1.5;
+  }
+  .upd-new { background: #fef3c7; color: #92400e; }
+  .upd-mod { background: #e0f2fe; color: #075985; }
+
+  .empty-msg { padding: 20px 16px; color: var(--text-muted); font-size: 12px; }
+
+  @media (max-width: 800px) {
+    .header { padding: 14px 16px 12px; }
+    .content { padding: 10px 8px 40px; }
+    .t th, .t td { padding: 6px 8px; font-size: 11.5px; }
+    .t .item td:first-child { padding-left: 16px; }
+    .filters { gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <h1>项目待办与进展追踪</h1>
+    <span class="updated">更新于 2026-05-27 &middot; B.10 待办对齐后</span>
+  </div>
+  <div class="stats" id="statsBar"></div>
+  <div class="filters">
+    <div class="filter-group">
+      <span class="filter-label">状态</span>
+      <button class="fbtn active" data-f="status" data-v="all">全部</button>
+      <button class="fbtn" data-f="status" data-v="todo">仅待办</button>
+      <button class="fbtn" data-f="status" data-v="new">最新更新 (5/27)</button>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">负责人</span>
+      <button class="fbtn active" data-f="owner" data-v="all">全部</button>
+      <button class="fbtn" data-f="owner" data-v="tech">技术</button>
+      <button class="fbtn" data-f="owner" data-v="mkt">市场部</button>
+      <button class="fbtn" data-f="owner" data-v="taz">Taz</button>
+      <button class="fbtn" data-f="owner" data-v="team">全员</button>
+    </div>
+  </div>
+</div>
+
+<div class="content" id="app"></div>
+
+<script>
+const D = [
+  {
+    section: "场景二 · 痛点挖掘",
+    groups: [
+      { name: "痛点数据采集与分析", items: [
+        { n: "小红书评论数据采集与标签分析", o: "技术", ot: "tech", s: "已完成", st: "done", p: "果泥品类：2万条原始→4000条有效→三级标签体系", d: "5/12", nw: 0, upd: "" },
+        { n: "搜索词（聚光）痛点分析", o: "技术", ot: "tech", s: "已完成", st: "done", p: "初稿已产出，已同步群内", d: "5/20", nw: 0, upd: "" },
+        { n: "用户访谈资料痛点分析", o: "市场部+技术", ot: "both", s: "进行中", st: "wip", p: "已导出可获取文件并产出初稿；<strong>需市场部校验各品类参考数据源并输出校验表格</strong>", d: "待定", nw: 1, upd: "5/27 更新" },
+        { n: "新关键词爬取（果泥补充+米粉）", o: "市场部→技术", ot: "both", s: "进行中", st: "wip", p: "7元账号仍可用且超预期；计划采购4-5个备用账号，禁止使用个人号；<strong>需市场部输出分品类爬取关键词列表（标注量级、爬取频率、筛选条件）</strong>", d: "待市场部输入", nw: 1, upd: "5/27 更新" },
+      ]},
+      { name: "痛点结果校验与最终输出", items: [
+        { n: "3份痛点文档同步至项目群", o: "技术", ot: "tech", s: "已完成", st: "done", p: "已发群", d: "5/21", nw: 0, upd: "" },
+        { n: "市场部校验痛点与场景质量", o: "市场部+技术", ot: "both", s: "进行中", st: "wip", p: "5/22碰头讨论反馈（待确认结果）", d: "5/22", nw: 0, upd: "" },
+        { n: "明确痛点与场景的映射关系", o: "市场部+技术", ot: "both", s: "待开始", st: "todo", p: "场景是痛点延展（如“宝宝哭闹”→“车上哭闹”），部分映射不直观，需梳理清楚", d: "待定", nw: 0, upd: "" },
+        { n: "补充痛点库维度（内容形式+D1-D5+判断逻辑）", o: "技术+市场部", ot: "both", s: "进行中", st: "wip", p: "UGC/PGC/BGC分类说明已收到（Z2.4）；D1-D5说明已收到（Z2.5），<strong>待市场部补充分品类的D1-D5实际示例</strong>", d: "待市场部补充示例", nw: 1, upd: "5/27 更新" },
+        { n: "迭代标签体系与场景延展", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "依赖校验反馈", d: "校验后", nw: 0, upd: "" },
+        { n: "痛点场景库汇总（果泥品类）", o: "技术", ot: "tech", s: "已完成", st: "done", p: "合并评论/搜索/访谈三来源→2.5痛点场景库（22个痛点）", d: "5/26", nw: 0, upd: "5/26 新增" },
+        { n: "整合最终输出表（痛点+描述+量化+场景）", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "依赖校验反馈", d: "校验后", nw: 0, upd: "" },
+      ]},
+      { name: "爬虫技术基础设施", items: [
+        { n: "同步分品类爬取关键词列表（含量级/频率/筛选条件）", o: "市场部", ot: "mkt", s: "待开始", st: "todo", p: "大词每月爬一次，极小词半年一次，所有词每半年全量；筛选条件：半年内发布+点赞倒序前200篇+剔除BGC", d: "待定", nw: 1, upd: "5/27 更新" },
+        { n: "优化飞书多维表格提需交互方式", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "替代内网提需方式；计划内关键词一次性给到，计划外需求群内同步后录入飞书表格", d: "本周", nw: 0, upd: "" },
+        { n: "爬虫方案与成本确认", o: "技术", ot: "tech", s: "已完成", st: "done", p: "自购账号（7元/个），计划采购4-5个备用；可复用于评论和达人爬取", d: "5/20", nw: 1, upd: "5/27 更新" },
+      ]}
+    ]
+  },
+  {
+    section: "场景三 · 内容策划",
+    groups: [
+      { name: "方式一：基于痛点创作", items: [
+        { n: "输入项与处理逻辑对齐", o: "市场部+技术", ot: "both", s: "已完成", st: "done", p: "人群策略/痛点场景库/产品卖点库/内容红线四项输入已明确", d: "5/20", nw: 0, upd: "" },
+        { n: "市场部提供最新人群策略表格", o: "市场部", ot: "mkt", s: "待开始", st: "todo", p: "场景一产出（人群分类→痛点→内容类型→场景→人群包→关键词），是方式一的核心输入", d: "Andy整理各种输入", nw: 0, upd: "" },
+        { n: "产出第一版AI内容demo", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "基于市场部提供的优等生/差等生笔记测试", d: "本周", nw: 0, upd: "" },
+        { n: "补充文风&人设输入项", o: "市场部+技术", ot: "both", s: "待开始", st: "todo", p: "共识：人设由场景自然延展，非独立创造", d: "待定", nw: 0, upd: "" },
+      ]},
+      { name: "方式二：优质内容复刻", items: [
+        { n: "复刻逻辑明确（90%保留+10%微调）", o: "市场部+技术", ot: "both", s: "已完成", st: "done", p: "按模块拆分：标题/引入/承接/卖点/使用感受", d: "5/20", nw: 0, upd: "" },
+        { n: "全品类爆款内容拆解", o: "市场部", ot: "mkt", s: "已完成", st: "done", p: "文字+图片维度已完成", d: "5/21前", nw: 0, upd: "" },
+        { n: "产出复刻demo（实际文章跑流程）", o: "技术+市场部", ot: "both", s: "已完成首轮", st: "done", p: "<strong>3.2.1对比分析+复刻Demo已产出（5场景×2版本），HTML可视化已产出</strong>", d: "5/26", nw: 0, upd: "" },
+      ]},
+      { name: "方式三：爆款公式提炼", items: [
+        { n: "与市场部对齐爆款提炼的处理方法", o: "市场部+技术", ot: "both", s: "已完成", st: "done", p: "文字类6+2维度（标题/引入/承接/卖点/销售引导/收尾+文风/人设），图片类2维度（封面单独拆分+图片排序构图）；先提炼后打标签；输出Excel格式", d: "5/27", nw: 1, upd: "5/27 更新" },
+        { n: "市场部同步优等生/差等生划分标准", o: "市场部", ot: "mkt", s: "待开始", st: "todo", p: "需同步划分逻辑，拿到后可自主完成数据标注", d: "待定", nw: 1, upd: "5/27 新增" },
+        { n: "市场部确定爆款周报更新频次与时间节点", o: "市场部", ot: "mkt", s: "待开始", st: "todo", p: "不息周报为飞书文档格式需导出处理，需确定固定更新节奏", d: "待定", nw: 1, upd: "5/27 新增" },
+        { n: "用现有标注好的爆款数据完成第一轮提炼", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "基于不息周报中已标注的优等生/差等生数据先跑一轮", d: "本周", nw: 1, upd: "5/27 新增" },
+        { n: "优质内容日常收集机制（专属群+机器人）", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "新建专属群（仅发优质内容，避免大群干扰机器人）；市场部更新多维表格后机器人自动同步到群", d: "本周", nw: 1, upd: "5/27 更新" },
+        { n: "本周尝试爬取蒲公英热门热点话题数据", o: "技术", ot: "tech", s: "进度滞后", st: "delayed", p: "原计划5/26产出未完成，需加快进度", d: "本周（已延期）", nw: 1, upd: "5/27 更新" },
+        { n: "路径A：蒲公英/小红书热门数据获取", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "需技术开发（千瓜暂不支持导出，探索定制API或自主爬取），短期无法启动", d: "中期", nw: 0, upd: "" },
+        { n: "路径B：不息复盘材料→优等生vs差等生对比", o: "技术", ot: "tech", s: "已完成", st: "done", p: "<strong>3.1.1对比报告+爆款内容Demo已产出，3.1.2原始数据Excel已产出</strong>", d: "5/25", nw: 0, upd: "" },
+      ]},
+      { name: "同质化解决方案", items: [
+        { n: "核心路径达成共识", o: "全员", ot: "team", s: "已完成", st: "done", p: "痛点×场景交叉组合为核心；场景天然包含人设", d: "5/21", nw: 0, upd: "" },
+        { n: "验证差异化效果", o: "技术+市场部", ot: "both", s: "待开始", st: "todo", p: "需细化交叉矩阵（人设×场景×情绪×卖点），产出对比样本", d: "持续", nw: 0, upd: "" },
+        { n: "多模型交叉改写测试", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "Claude↔GPT交叉改写，验证风格差异度", d: "中期", nw: 0, upd: "" },
+      ]},
+      { name: "场景二→三输入链路", items: [
+        { n: "打通完整链路", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "依赖场景二最终输出表完成", d: "中期", nw: 0, upd: "" },
+      ]}
+    ]
+  },
+  {
+    section: "场景四 · 达人筛选",
+    groups: [
+      { name: "数据获取方案", items: [
+        { n: "四种方案评估", o: "技术", ot: "tech", s: "已完成", st: "done", p: "千瓜为优先方案，覆盖80%+维度", d: "5/20", nw: 0, upd: "" },
+        { n: "千瓜平台验证", o: "技术", ot: "tech", s: "已完成", st: "done", p: "支持月龄/粉丝量/报价/活跃度/性别筛选；不支持回复率、自定义导出范围", d: "5/20", nw: 0, upd: "" },
+        { n: "缺失字段（量化字段+达人主页信息）补充方案", o: "技术", ot: "tech", s: "进行中", st: "wip", p: "千瓜80%免费导出，20%需JustOneAPI（额外成本）；<strong>本周输出对比表：免费维度vs付费维度+低成本替代指标</strong>", d: "本周", nw: 1, upd: "5/27 更新" },
+        { n: "输出达人爬取字段要求与成本测算表格", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "表格输出完成后再找市场部对接确认细节", d: "本周", nw: 1, upd: "5/27 新增" },
+      ]},
+      { name: "达人筛选与输出", items: [
+        { n: "需求量级与品类优先级对齐", o: "市场部+技术", ot: "both", s: "已完成", st: "done", p: "250篇/月，3000达人；果泥+辅食油可通用；优先米粉", d: "5/21", nw: 0, upd: "" },
+        { n: "米粉达人筛选维度对齐", o: "市场部+技术", ot: "both", s: "已完成", st: "done", p: "与Regina对齐口径，待爬取和处理数据", d: "5/26", nw: 0, upd: "" },
+        { n: "输出米粉达人筛选结果表（1500-3000个）", o: "技术", ot: "tech", s: "进行中", st: "wip", p: "千瓜导出+量化筛选逻辑，本次仅输出量化维度结果", d: "本周", nw: 0, upd: "" },
+      ]},
+      { name: "活人感判断能力建设", items: [
+        { n: "约不息技术对接达人数据处理流程", o: "技术", ot: "tech", s: "待不息确认时间", st: "todo", p: "了解飞书二次加工+多模态方案；不息618期间无法投入，618结束后第二周对齐", d: "618后", nw: 0, upd: "" },
+        { n: "多模态模型测试活人感识别", o: "技术", ot: "tech", s: "优先级低", st: "low", p: "第一波图片已存天翼云（通过ID关联达人）；识别方案优先级低，先推进其他工作", d: "中期", nw: 0, upd: "" },
+      ]}
+    ]
+  },
+  {
+    section: "其他事项",
+    groups: [
+      { name: "笔记评论监控工具", items: [
+        { n: "工具开发", o: "技术", ot: "tech", s: "已完成", st: "done", p: "支持自定义笔记/间隔/飞书推送", d: "5/20前", nw: 0, upd: "" },
+        { n: "部署推广（同步至群，各品类配置）", o: "技术", ot: "tech", s: "已完成", st: "done", p: "已发群供团队使用", d: "5/21", nw: 0, upd: "" },
+        { n: "嫁接评论监控功能到飞书多维表格", o: "技术", ot: "tech", s: "进行中", st: "wip", p: "5/27确认这两天内完成对齐上线，通过飞书多维表格呈现监控结果", d: "5/28-29", nw: 1, upd: "5/27 新增" },
+      ]},
+      { name: "AIGC短视频", items: [
+        { n: "服务商市场摸排", o: "技术+市场部", ot: "both", s: "进行中", st: "wip", p: "阿里已推销方案，Laurel跟进采购对接；共识：人实拍+场景AI混合模式", d: "持续", nw: 0, upd: "" },
+        { n: "约专业服务商专项交流", o: "技术+市场部", ot: "both", s: "待开始", st: "todo", p: "—", d: "下周", nw: 0, upd: "" },
+      ]},
+      { name: "团队知识库建设", items: [
+        { n: "搭建know-how AI Agent", o: "全员", ot: "team", s: "延后", st: "low", p: "复制不息模式，沉淀投流/内容策略方法论；5/26确认延后推进", d: "中期", nw: 0, upd: "" },
+      ]},
+      { name: "协作基础设施", items: [
+        { n: "新建全员企微项目群", o: "技术", ot: "tech", s: "已完成", st: "done", p: "已建群并同步文件", d: "5/21", nw: 0, upd: "" },
+        { n: "群内分享Typora安装包", o: "技术", ot: "tech", s: "已完成", st: "done", p: "—", d: "5/21", nw: 0, upd: "" },
+        { n: "尝试飞书消息闭环的链路", o: "技术", ot: "tech", s: "进行中", st: "wip", p: "—", d: "6月初", nw: 0, upd: "" },
+        { n: "测试飞书多维表格打通方案", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "云端Claude连接飞书智能体+多维表格方案", d: "本周", nw: 1, upd: "5/27 新增" },
+        { n: "飞书智能体拆分部署", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "素材库智能体（通义千问/阿里模型，部署Mac）+ PA交互智能体", d: "待定", nw: 1, upd: "5/27 新增" },
+        { n: "已有展示项目改造为飞书工作台应用", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "改造后用户点击即可免登录访问", d: "待定", nw: 1, upd: "5/27 新增" },
+        { n: "梳理PA前端交互完整链路落地方案", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "飞书工作台+多个拆分智能体，不同功能不同对话", d: "待定", nw: 1, upd: "5/27 新增" },
+        { n: "全项目文档迁移飞书", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "本周内完成，技术团队一键上传", d: "本周内", nw: 1, upd: "5/27 更新" },
+        { n: "飞书企业账号采购", o: "Taz", ot: "taz", s: "待开始", st: "todo", p: "部分成员仅有个人账号，Taz与Baoge沟通财务打款", d: "本周", nw: 0, upd: "" },
+        { n: "采购4-5个备用爬取账号", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "7元/个，禁止使用个人号避免损失", d: "本周", nw: 1, upd: "5/27 新增" },
+        { n: "榨算API补充信息开发对齐", o: "旺仔", ot: "wangzai", s: "进行中", st: "wip", p: "5/27下午碰进度", d: "5/27", nw: 1, upd: "5/27 新增" },
+      ]},
+      { name: "品牌AI视觉统一", items: [
+        { n: "约安克团队交流分层处理经验", o: "Taz", ot: "taz", s: "待开始", st: "todo", p: "学习确定性图层+创意性图层的落地经验；低优先级", d: "待定", nw: 0, upd: "" },
+        { n: "微调品牌专属模型", o: "技术", ot: "tech", s: "待开始", st: "todo", p: "难点在设计侧输入标准化；低于内容AI核心项目优先级", d: "中期", nw: 0, upd: "" },
+      ]},
+      { name: "资源优先级", items: [
+        { n: "当前内容AI项目为第一优先级", o: "全员", ot: "team", s: "已确认", st: "confirmed", p: "财务销售预测模型需求背景未明确，优先级低", d: "5/26", nw: 0, upd: "" },
+      ]}
+    ]
+  }
+];
+
+const bcls = { done:'b-done', wip:'b-wip', todo:'b-todo', low:'b-low', confirmed:'b-confirmed', delayed:'b-delayed' };
+const ocls = { tech:'o-tech', mkt:'o-mkt', both:'o-both', taz:'o-taz', wangzai:'o-wangzai', team:'o-all' };
+
+let fStatus = 'all', fOwner = 'all';
+
+function allItems() { const a=[]; D.forEach(s=>s.groups.forEach(g=>g.items.forEach(i=>a.push(i)))); return a; }
+
+function stats() {
+  const a = allItems();
+  const done = a.filter(i=>i.st==='done'||i.st==='confirmed').length;
+  const wip = a.filter(i=>i.st==='wip'||i.st==='delayed').length;
+  const todo = a.filter(i=>i.st==='todo'||i.st==='low').length;
+  const nw = a.filter(i=>i.nw).length;
+  document.getElementById('statsBar').innerHTML =
+    `<span class="stat stat-done"><span class="dot"></span>已完成 ${done}</span>`+
+    `<span class="stat stat-wip"><span class="dot"></span>进行中 ${wip}</span>`+
+    `<span class="stat stat-todo"><span class="dot"></span>待办 ${todo}</span>`+
+    `<span class="stat stat-new"><span class="dot"></span>最新更新 ${nw}</span>`;
+}
+
+function vis(i) {
+  if (fStatus==='todo' && (i.st==='done'||i.st==='confirmed')) return false;
+  if (fStatus==='new' && !i.nw) return false;
+  if (fOwner!=='all' && i.ot!==fOwner) return false;
+  return true;
+}
+
+function render() {
+  stats();
+  const el = document.getElementById('app');
+  el.innerHTML = '';
+  D.forEach(sec => {
+    const div = document.createElement('div'); div.className='section';
+    const totalVisible = sec.groups.reduce((c,g)=>c+g.items.filter(vis).length,0);
+    const hd = document.createElement('div'); hd.className='sec-head';
+    hd.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><h2>${sec.section}</h2><span class="cnt">${totalVisible}</span></div><span class="arrow">&#9660;</span>`;
+    hd.onclick = () => { hd.classList.toggle('collapsed'); const b=hd.nextElementSibling; b.style.display=hd.classList.contains('collapsed')?'none':''; };
+    const bd = document.createElement('div'); bd.className='sec-body';
+    if (!totalVisible) { bd.innerHTML='<div class="empty-msg">无匹配项</div>'; }
+    else {
+      const tb = document.createElement('table'); tb.className='t';
+      tb.innerHTML='<thead><tr><th style="width:24%">事项</th><th style="width:9%">负责人</th><th style="width:7%">状态</th><th style="width:40%">进展</th><th style="width:9%">目标</th><th style="width:11%">更新</th></tr></thead>';
+      const tbody = document.createElement('tbody');
+      sec.groups.forEach(g => {
+        const vi = g.items.filter(vis);
+        if (!vi.length) return;
+        const gr = document.createElement('tr'); gr.className='grp';
+        gr.innerHTML=`<td colspan="6">${g.name}</td>`;
+        tbody.appendChild(gr);
+        vi.forEach(i => {
+          const tr = document.createElement('tr');
+          tr.className = `item s-${i.st}${i.nw?' is-new':''}`;
+          const updHtml = i.upd ? (() => {
+            const isNew = i.upd.includes('新增');
+            return `<span class="upd-tag ${isNew?'upd-new':'upd-mod'}">${i.upd}</span>`;
+          })() : '<span style="color:var(--text-muted);font-size:11px">—</span>';
+          tr.innerHTML =
+            `<td class="item-name">${i.n}</td>`+
+            `<td><span class="owner ${ocls[i.ot]||''}">${i.o}</span></td>`+
+            `<td><span class="badge ${bcls[i.st]||'b-todo'}">${i.s}</span></td>`+
+            `<td class="progress">${i.p}</td>`+
+            `<td class="date">${i.d}</td>`+
+            `<td>${updHtml}</td>`;
+          tbody.appendChild(tr);
+        });
+      });
+      tb.appendChild(tbody); bd.appendChild(tb);
+    }
+    div.appendChild(hd); div.appendChild(bd); el.appendChild(div);
+  });
+}
+
+document.querySelectorAll('.fbtn').forEach(b => {
+  b.onclick = () => {
+    const f=b.dataset.f, v=b.dataset.v;
+    document.querySelectorAll(`.fbtn[data-f="${f}"]`).forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    if(f==='status') fStatus=v; else fOwner=v;
+    render();
+  };
+});
+
+render();
+</script>
+</body>
+</html>
