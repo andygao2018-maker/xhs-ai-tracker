@@ -91,6 +91,9 @@ tr:hover td{background:var(--accent-subtle)}
 td.col-item{min-width:260px}
 td.col-item strong{color:var(--ink)}
 .col-note{color:var(--muted);font-size:12px}
+.col-page{white-space:nowrap}
+.page-tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;
+  background:var(--accent-light);color:var(--accent);white-space:nowrap}
 
 /* BADGES */
 .badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap}
@@ -125,7 +128,7 @@ td.col-item strong{color:var(--ink)}
 
 <div class="main">
   <h1>PA-Toolkit 工作台 · 待办看板</h1>
-  <p class="subtitle">前端工作台的 bug / 内容质量 / UI / 新功能 专项追踪 &middot; 与业务进展 Tracker 分离 &middot; 最后更新 2026-06-16（市场部试用反馈 + B.10.20 前端结构调整）</p>
+  <p class="subtitle">前端工作台的 bug / 内容质量 / UI / 新功能 专项追踪 &middot; 与业务进展 Tracker 分离 &middot; 页面口径对齐 PRD v3.0 &middot; 最后更新 2026-06-16（市场部试用反馈 + B.10.20 前端结构调整 + 按 PRD v3.0 页面对齐）</p>
 
   <!-- STAT CARDS -->
   <div class="stats">
@@ -157,15 +160,15 @@ td.col-item strong{color:var(--ink)}
     <div class="section-desc">功能行为与预期不符，需定位修复。优先级最高，先于新功能开发。</div>
     <div class="section-body">
       <table>
-        <tr><th>#</th><th class="col-item">问题</th><th>来源</th><th>状态</th><th class="th-owner">负责人</th><th>备注</th></tr>
-        <tr><td class="id-cell">B1</td><td class="col-item"><strong>近两天生成全部失败</strong>（"生成失败，请重试"）<span class="urgent-tag">最紧急</span></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">旺仔/Jacobe</td><td class="col-note">阻塞全员试用，建议今天先排查</td></tr>
-        <tr><td class="id-cell">B2</td><td class="col-item">油的所有痛点/场景仍是果泥的（数据未切换）</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
-        <tr><td class="id-cell">B3</td><td class="col-item"><strong>场景X 标签硬编码</strong>，始终显示"场景13"，未按实际场景动态展示</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
-        <tr><td class="id-cell">B4</td><td class="col-item">配图修改指令 AI 未理解（识别失败）</td><td><span class="src">B.10.18 / 市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">已知bug，复现确认</td></tr>
-        <tr><td class="id-cell">B5</td><td class="col-item">过往聊天记录无法找回</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
-        <tr><td class="id-cell">B6</td><td class="col-item">提示"稿件已更新"，实际未更新</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
-        <tr><td class="id-cell">B7</td><td class="col-item">全局概览切品类数据不更新</td><td><span class="src">B.10.18</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
-        <tr><td class="id-cell">B8</td><td class="col-item">全项目所有页面<strong>滑动到底部出现多余留白</strong></td><td><span class="src">B.10.20</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">统一前端微调</td></tr>
+        <tr><th>#</th><th class="th-page">页面</th><th class="col-item">问题</th><th>来源</th><th>状态</th><th class="th-owner">负责人</th><th>备注</th></tr>
+        <tr><td class="id-cell">B1</td><td class="col-page"><span class="page-tag">内容策划</span></td><td class="col-item"><strong>近两天生成全部失败</strong>（"生成失败，请重试"）<span class="urgent-tag">最紧急</span></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">旺仔/Jacobe</td><td class="col-note">阻塞全员试用，建议今天先排查</td></tr>
+        <tr><td class="id-cell">B2</td><td class="col-page"><span class="page-tag">内容策划</span></td><td class="col-item">切到"油"后痛点/场景仍是果泥的（品类切换后数据未切换）</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">品类门控数据刷新，与 B7 同源</td></tr>
+        <tr><td class="id-cell">B3</td><td class="col-page"><span class="page-tag">内容策划</span></td><td class="col-item"><strong>场景标签硬编码</strong>，始终显示"场景13"，未按 d_stage 动态展示</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">稿件 d_stage/场景 字段渲染</td></tr>
+        <tr><td class="id-cell">B4</td><td class="col-page"><span class="page-tag">内容策划·对话区</span></td><td class="col-item">配图修改指令 AI 未理解（识别失败）</td><td><span class="src">B.10.18 / 市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">已知bug，复现确认</td></tr>
+        <tr><td class="id-cell">B5</td><td class="col-page"><span class="page-tag">内容策划·对话区</span></td><td class="col-item">过往聊天记录无法找回</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">对话区会话持久化</td></tr>
+        <tr><td class="id-cell">B6</td><td class="col-page"><span class="page-tag">内容策划</span></td><td class="col-item">提示"稿件已更新"，实际未更新</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">对话修改后工作区未同步</td></tr>
+        <tr><td class="id-cell">B7</td><td class="col-page"><span class="page-tag">生产进度</span></td><td class="col-item">切品类数据不更新（切油仍显示果泥）</td><td><span class="src">B.10.18</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">PRD v3.0 已登记 <strong>R-OV-03</strong></td></tr>
+        <tr><td class="id-cell">B8</td><td class="col-page"><span class="page-tag">全局</span></td><td class="col-item">全项目所有页面<strong>滑动到底部出现多余留白</strong></td><td><span class="src">B.10.20</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">统一前端微调</td></tr>
       </table>
     </div>
   </div>
@@ -176,9 +179,9 @@ td.col-item strong{color:var(--ink)}
     <div class="section-desc">AI 生成内容本身的质量问题，涉及红线校验、卖点库数据与去 AI 味。</div>
     <div class="section-body">
       <table>
-        <tr><th>#</th><th class="col-item">问题</th><th>来源</th><th>状态</th><th class="th-owner">负责人</th><th>备注</th></tr>
-        <tr><td class="id-cell">Q1</td><td class="col-item"><strong>嘉宝出现"白砂糖"</strong> —— 红线校验漏检 或 卖点库数据问题</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-check">待排查</span></td><td class="col-owner">技术+市场部</td><td class="col-note">需排查根因（红线 Z3.3.9 / 卖点库）；延展：未来建立用户问题反馈机制</td></tr>
-        <tr><td class="id-cell">Q2</td><td class="col-item">生成内容 AI 味重</td><td><span class="src">持续</span></td><td><span class="badge b-prog">进行中</span></td><td class="col-owner">旺仔</td><td class="col-note">去AI味skill（同质化方案三条路径之一）</td></tr>
+        <tr><th>#</th><th class="th-page">页面</th><th class="col-item">问题</th><th>来源</th><th>状态</th><th class="th-owner">负责人</th><th>备注</th></tr>
+        <tr><td class="id-cell">Q1</td><td class="col-page"><span class="page-tag">内容策划 / 配置中心</span></td><td class="col-item"><strong>嘉宝出现"白砂糖"</strong> —— 红线校验漏检 或 卖点库数据问题</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-check">待排查</span></td><td class="col-owner">技术+市场部</td><td class="col-note">需排查根因（红线 Z3.3.9 / 配置中心卖点库）；延展：未来建立用户问题反馈机制</td></tr>
+        <tr><td class="id-cell">Q2</td><td class="col-page"><span class="page-tag">内容策划</span></td><td class="col-item">生成内容 AI 味重</td><td><span class="src">持续</span></td><td><span class="badge b-prog">进行中</span></td><td class="col-owner">旺仔</td><td class="col-note">去AI味skill（同质化方案三条路径之一）</td></tr>
       </table>
     </div>
   </div>
@@ -189,14 +192,14 @@ td.col-item strong{color:var(--ink)}
     <div class="section-desc">界面布局、信息组织与交互体验优化，多数随 Andy 牵头的 PRD 统一排期。</div>
     <div class="section-body">
       <table>
-        <tr><th>#</th><th class="col-item">需求</th><th>来源</th><th>状态</th><th class="th-owner">负责人</th><th>备注</th></tr>
-        <tr><td class="id-cell">U1</td><td class="col-item">配置中心整体页面乱，需重新布局</td><td><span class="src">B.10.18 / 市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
-        <tr><td class="id-cell">U2</td><td class="col-item">AI模型板块显示<strong>真实模型名称</strong>；按钮放在<strong>选择该模型的环节之前</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">需想清楚模型选择在流程中的位置</td></tr>
-        <tr><td class="id-cell">U3</td><td class="col-item">配图建议展示格式统一</td><td><span class="src">B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
-        <tr><td class="id-cell">U4</td><td class="col-item"><strong>首页按场景分组+统一底色</strong>（场景二：痛点挖掘+数据爬取；场景三：内容策划+全局概览+爆款分析）；首页"A6"名称修改</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">配置中心/全局概览首页独立入口是否保留<strong>待确认</strong></td></tr>
-        <tr><td class="id-cell">U5</td><td class="col-item">品类选择交互：选定品类后<strong>禁止点击空白处直接退回</strong>上一级</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
-        <tr><td class="id-cell">U6</td><td class="col-item"><strong>痛点页展示改造</strong>：参考Excel格式、<strong>方格多列布局</strong>（每痛点=大标题+解释+痛点内容+右上角评分）；默认<strong>优先展示"品类汇总痛点"</strong>，其余靠后</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">解决当前纵向过长需多次滑动问题</td></tr>
-        <tr><td class="id-cell">U7</td><td class="col-item"><strong>痛点页精简</strong>：删除"挖掘/生成"按钮（仅留查看/调用）、删除语义不清的"分析期"标题、历史痛点只分两类（跨品类通用+当前品类专属）</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">前期不开放痛点生成入口</td></tr>
+        <tr><th>#</th><th class="th-page">页面</th><th class="col-item">需求</th><th>来源</th><th>状态</th><th class="th-owner">负责人</th><th>备注</th></tr>
+        <tr><td class="id-cell">U1</td><td class="col-page"><span class="page-tag">配置中心</span></td><td class="col-item">整体页面乱，需重新布局</td><td><span class="src">B.10.18 / 市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">PRD v3.0 已重新设计（左右两列按场景分组：左知识材料MD可编辑/右运行数据DB只读），待开发落地</td></tr>
+        <tr><td class="id-cell">U2</td><td class="col-page"><span class="page-tag">导航栏（全局）</span></td><td class="col-item">AI模型显示<strong>真实模型名称</strong>；选择入口应在<strong>用该模型的环节之前</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">PRD 已将"配置 AI 模型"设为顶部导航全局按钮；真实名称+流程位置待补</td></tr>
+        <tr><td class="id-cell">U3</td><td class="col-page"><span class="page-tag">内容策划</span></td><td class="col-item">配图建议展示格式统一</td><td><span class="src">B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">PRD v3.0 修订记录已纳入，待与 Andy 对齐格式后补入</td></tr>
+        <tr><td class="id-cell">U4</td><td class="col-page"><span class="page-tag">首页 + 导航栏</span></td><td class="col-item"><strong>首页卡片按场景分组+统一底色</strong>（场景二：痛点挖掘+数据爬取；场景三：内容策划+爆款分析+生产进度）；删除首页「配置中心」「生产进度（原全局概览）」两个快捷入口；卡片"A6"名称修改</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">导航栏已按归属分组着色（PRD）；首页卡片分组+删快捷入口为 6/16 新增 delta，删后仍可经导航访问</td></tr>
+        <tr><td class="id-cell">U5</td><td class="col-page"><span class="page-tag">品类门控</span></td><td class="col-item">品类选择交互：选定品类后<strong>禁止点击空白处直接退回</strong>上一级</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">对应 PRD 2.1 品类选择门控</td></tr>
+        <tr><td class="id-cell">U6</td><td class="col-page"><span class="page-tag">痛点挖掘</span></td><td class="col-item"><strong>痛点展示改造</strong>：参考Excel格式、<strong>方格多列布局</strong>（每痛点=大标题+解释+痛点内容+右上角评分）；默认<strong>优先展示"品类汇总痛点"</strong>，其余靠后</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">PRD 现为痛点候选卡片纵向排列，改多列方格；解决纵向过长需多次滑动</td></tr>
+        <tr><td class="id-cell">U7</td><td class="col-page"><span class="page-tag">痛点挖掘</span></td><td class="col-item"><strong>痛点页精简</strong>：删除"挖掘/生成"按钮（仅留查看/调用）、删除语义不清的"分析期"标题、历史痛点只分两类（跨品类通用+当前品类专属）</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">与 PRD 现有"分析期列表+新一轮挖掘"流程冲突，前期不开放痛点生成入口</td></tr>
       </table>
     </div>
   </div>
@@ -207,17 +210,17 @@ td.col-item strong{color:var(--ink)}
     <div class="section-desc">尚未实现的新能力，需进入 PRD 拆分 → 串讲反串讲对齐 → 开发流程。</div>
     <div class="section-body">
       <table>
-        <tr><th>#</th><th class="col-item">需求</th><th>来源</th><th>状态</th><th class="th-owner">负责人</th><th>备注</th></tr>
-        <tr><td class="id-cell">F1</td><td class="col-item"><strong>产品库</strong>加入配置中心</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
-        <tr><td class="id-cell">F2</td><td class="col-item">痛点/场景/D4/人设<strong>增加可选项</strong>：①选择入口处加 ②配置中心可编辑</td><td><span class="src">市场部6/16 / B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">关联人设编辑入口 + 自定义维度字段</td></tr>
-        <tr><td class="id-cell">F3</td><td class="col-item"><strong>封面标题</strong>(给用户看) 与 <strong>笔记标题</strong>(给系统看) 互补，封面标题直接放笔记标题后面</td><td><span class="src">市场部6/16 / B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">关联双标题+压字建议需求</td></tr>
-        <tr><td class="id-cell">F4</td><td class="col-item">分品类 <strong>D2–D4 prompt 可配置</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
-        <tr><td class="id-cell">F5</td><td class="col-item">已确认内容<strong>流转到飞书多维表格</strong>（"小红PA数据呈现"），并<strong>汇总为一篇文章</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术(Jacobe)</td><td class="col-note">关联飞书部署链路</td></tr>
-        <tr><td class="id-cell">F6</td><td class="col-item">每个生成过程展示<strong>参考了哪些文档</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
-        <tr><td class="id-cell">F7</td><td class="col-item"><strong>修改意见不覆盖原文</strong>，支持修改前后<strong>版本对比</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">区别于品类版本对比</td></tr>
-        <tr><td class="id-cell">F8</td><td class="col-item">内容稿件池新增<strong>笔记链接字段</strong></td><td><span class="src">B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">仅已发布内容有链接</td></tr>
-        <tr><td class="id-cell">F9</td><td class="col-item">红线<strong>字数规则前端校验</strong>（最佳300字/不超400字）</td><td><span class="src">B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">不新增配置项，仅校验现有规则</td></tr>
-        <tr><td class="id-cell">F10</td><td class="col-item"><strong>数据爬取入口前期对普通用户隐藏</strong>，移到痛点页面内并标记"待上线/未来开放"</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">功能未稳定，前期降低使用门槛</td></tr>
+        <tr><th>#</th><th class="th-page">页面</th><th class="col-item">需求</th><th>来源</th><th>状态</th><th class="th-owner">负责人</th><th>备注</th></tr>
+        <tr><td class="id-cell">F1</td><td class="col-page"><span class="page-tag">配置中心</span></td><td class="col-item"><strong>产品库</strong>加入配置中心</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">PRD 右列已有"产品卖点库"，确认是否同一/或独立产品库</td></tr>
+        <tr><td class="id-cell">F2</td><td class="col-page"><span class="page-tag">内容策划 + 配置中心</span></td><td class="col-item">痛点/场景/D4/人设<strong>增加可选项</strong>：①选择入口处加 ②配置中心可编辑</td><td><span class="src">市场部6/16 / B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">PRD：custom_dimension 字段（待确认）+ 内容人设库编辑入口 <strong>R-CF-06</strong></td></tr>
+        <tr><td class="id-cell">F3</td><td class="col-page"><span class="page-tag">内容策划</span></td><td class="col-item"><strong>封面标题</strong>(给用户看) 与 <strong>文字标题</strong>(给系统看) 互补，封面标题直接放笔记标题后面</td><td><span class="src">市场部6/16 / B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">PRD v3.0 已纳入 cover_title/text_title（待确认），原型图已调整</td></tr>
+        <tr><td class="id-cell">F4</td><td class="col-page"><span class="page-tag">配置中心</span></td><td class="col-item">分品类 <strong>D2–D4 prompt 可配置</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">关联 PRD 左列爆款公式/内容分类体系</td></tr>
+        <tr><td class="id-cell">F5</td><td class="col-page"><span class="page-tag">内容策划 → 外部</span></td><td class="col-item">已确认内容<strong>流转到飞书多维表格</strong>（"小红PA数据呈现"），并<strong>汇总为一篇文章</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术(Jacobe)</td><td class="col-note">关联飞书部署链路</td></tr>
+        <tr><td class="id-cell">F6</td><td class="col-page"><span class="page-tag">内容策划</span></td><td class="col-item">每个生成过程展示<strong>参考了哪些文档</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">生成溯源</td></tr>
+        <tr><td class="id-cell">F7</td><td class="col-page"><span class="page-tag">内容策划</span></td><td class="col-item"><strong>修改意见不覆盖原文</strong>，支持修改前后<strong>版本对比</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">区别于品类版本对比</td></tr>
+        <tr><td class="id-cell">F8</td><td class="col-page"><span class="page-tag">内容策划</span></td><td class="col-item">内容稿件池新增<strong>笔记链接字段</strong></td><td><span class="src">B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">PRD v3.0 已纳入 note_link（待确认），仅已发布内容有</td></tr>
+        <tr><td class="id-cell">F9</td><td class="col-page"><span class="page-tag">内容策划</span></td><td class="col-item">红线<strong>字数规则前端校验</strong>（最佳300字/不超400字）</td><td><span class="src">B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">PRD v3.0 已纳入（待确认），不新增配置项仅校验</td></tr>
+        <tr><td class="id-cell">F10</td><td class="col-page"><span class="page-tag">数据爬取 + 痛点挖掘 + 首页</span></td><td class="col-item"><strong>数据爬取入口前期对普通用户隐藏</strong>，移到痛点挖掘页内并标记"待上线/未来开放"</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">PRD 现为独立导航第7位 + 待确认调顺序；F10 为前期降门槛 delta</td></tr>
       </table>
     </div>
   </div>
@@ -230,7 +233,7 @@ td.col-item strong{color:var(--ink)}
       <span><span class="badge b-prog">进行中</span> 已在处理</span>
       <span><span class="badge b-dev">待开发</span> 待排期开发</span>
     </div>
-    <div>来源标记：<code>市场部6/16</code> = 市场部试用反馈；<code>B.10.x</code> = 对应会议纪要（B.10.18=6/15产品需求评审；B.10.20=6/16前端结构调整）。前端需求统一遵循 bug / UI / 功能 三类规范，由 Andy 牵头产出需求文档 → 串讲反串讲对齐 → 开发。</div>
+    <div>页面口径对齐 <code>Z9.2_PA-Toolkit_PRD_v3.0</code>（每条标注归属页面，与 PRD 8 个导航页一致；"全局概览"→"生产进度"、"痛点页"→"痛点挖掘"）。来源标记：<code>市场部6/16</code> = 市场部试用反馈；<code>B.10.x</code> = 对应会议纪要（B.10.18=6/15产品需求评审；B.10.20=6/16前端结构调整）。部分条目 PRD v3.0 已纳入设计/登记编号（B7→R-OV-03、F2→R-CF-06、F3/F8/F9/U1/U3 等），状态仍为待开发。前端需求统一遵循 bug / UI / 功能 三类规范，由 Andy 牵头产出需求文档 → 串讲反串讲对齐 → 开发。</div>
   </div>
 </div>
 
