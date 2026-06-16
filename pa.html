@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PA-Toolkit 待办看板 | 需求与问题追踪</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --accent:#D45D35;--accent-hover:#B84A28;--accent-light:#FFF0EC;--accent-subtle:#FEF7F5;
+  --bg:#FAFAF8;--card:#F5F2EB;--surface:#EEEAE2;--line:#D5CEC3;
+  --muted:#6D6155;--ink:#2C2621;--light:#8D8578;
+  --success:#2E8B57;--success-bg:#EBF5F0;--warning:#D4880F;--warning-bg:#FFF8EB;
+  --danger:#DC4545;--danger-bg:#FEF0F0;--info:#3B82F6;--info-bg:#EFF6FF;
+  --bug:#DC4545;--bug-bg:#FEF0F0;--qual:#D4880F;--qual-bg:#FFF8EB;
+  --ui:#3B82F6;--ui-bg:#EFF6FF;--feat:#2E8B57;--feat-bg:#EBF5F0;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:16px;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 12px rgba(0,0,0,.06),0 2px 4px rgba(0,0,0,.04);
+  --topbar-h:52px;
+  --font-sans:Inter,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+  --font-mono:"JetBrains Mono","SF Mono",Consolas,monospace;
+}
+html{font-size:14px;scroll-behavior:smooth}
+body{font-family:var(--font-sans);color:var(--ink);background:var(--bg);line-height:1.6}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+
+/* TOPBAR */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);background:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;padding:0 24px;z-index:100;gap:12px}
+.topbar .logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:var(--ink)}
+.topbar .logo-icon{width:28px;height:28px;background:var(--accent);color:#fff;display:flex;align-items:center;
+  justify-content:center;border-radius:6px;font-size:11px;font-weight:700}
+.topbar .doc-title{font-size:13px;color:var(--muted);margin-left:8px;padding-left:12px;border-left:1px solid var(--line)}
+.topbar-right{margin-left:auto;font-size:12px;color:var(--muted)}
+
+/* MAIN */
+.main{max-width:1080px;margin:0 auto;padding:calc(var(--topbar-h) + 28px) 32px 80px}
+h1{font-size:26px;font-weight:700;margin-bottom:6px}
+.subtitle{color:var(--muted);font-size:13px;margin-bottom:24px}
+
+/* STAT CARDS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:14px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:var(--radius-md);padding:14px 16px;box-shadow:var(--shadow-sm)}
+.stat .num{font-size:26px;font-weight:700;font-family:var(--font-mono);line-height:1}
+.stat .label{font-size:12px;color:var(--muted);margin-top:6px}
+.stat.total .num{color:var(--ink)}
+.stat.bug .num{color:var(--bug)}
+.stat.qual .num{color:var(--qual)}
+.stat.ui .num{color:var(--ui)}
+.stat.feat .num{color:var(--feat)}
+.stat .label .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+
+/* URGENT BANNER */
+.urgent{background:var(--danger-bg);border:1px solid #F3B4B4;border-radius:var(--radius-md);
+  padding:12px 16px;margin-bottom:22px;font-size:13px;color:#9B2C2C;display:flex;align-items:center;gap:8px}
+.urgent .pulse{width:9px;height:9px;border-radius:50%;background:var(--danger);flex-shrink:0;
+  animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(220,69,69,.5)}70%{box-shadow:0 0 0 8px rgba(220,69,69,0)}100%{box-shadow:0 0 0 0 rgba(220,69,69,0)}}
+
+/* FILTER TABS */
+.tabbar{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;position:sticky;top:var(--topbar-h);
+  background:var(--bg);padding:10px 0;z-index:50}
+.tab{padding:6px 15px;font-size:13px;font-weight:500;color:var(--muted);border-radius:99px;
+  cursor:pointer;border:1px solid var(--line);background:#fff;transition:.15s;user-select:none}
+.tab:hover{background:var(--accent-subtle);color:var(--ink)}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tab .cnt{opacity:.7;font-size:11px;margin-left:3px}
+
+/* SECTION */
+.section{margin-bottom:26px;border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm)}
+.section-head{padding:12px 18px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:10px;color:#fff}
+.section-head .sec-icon{font-size:17px}
+.section-head .sec-cnt{margin-left:auto;font-size:12px;font-weight:500;background:rgba(255,255,255,.25);
+  padding:2px 10px;border-radius:99px}
+.section.bug .section-head{background:var(--bug)}
+.section.qual .section-head{background:var(--qual)}
+.section.ui .section-head{background:var(--ui)}
+.section.feat .section-head{background:var(--feat)}
+.section-body{background:#fff;padding:0}
+.section-desc{font-size:12px;color:var(--muted);padding:10px 18px;background:var(--accent-subtle);border-bottom:1px solid var(--line)}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--card);font-weight:600;text-align:left;padding:9px 14px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:12px;color:var(--muted)}
+td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--accent-subtle)}
+.id-cell{font-family:var(--font-mono);font-weight:700;color:var(--light);white-space:nowrap}
+td.col-item{min-width:260px}
+td.col-item strong{color:var(--ink)}
+.col-note{color:var(--muted);font-size:12px}
+
+/* BADGES */
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap}
+.b-fix{background:var(--danger-bg);color:var(--danger)}
+.b-dev{background:var(--surface);color:var(--muted)}
+.b-prog{background:var(--info-bg);color:#1E40AF}
+.b-check{background:var(--warning-bg);color:#8A5A0A}
+.src{display:inline-block;font-size:11px;color:var(--light);font-family:var(--font-mono);white-space:nowrap}
+.urgent-tag{display:inline-block;background:var(--danger);color:#fff;font-size:10px;font-weight:700;
+  padding:1px 6px;border-radius:4px;margin-left:4px}
+
+/* FOOTER */
+.footer{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;color:var(--light)}
+.footer .legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px}
+.footer .legend span{display:inline-flex;align-items:center;gap:5px}
+
+.hidden{display:none}
+@media(max-width:720px){
+  .main{padding-left:16px;padding-right:16px}
+  td.col-item{min-width:0}
+  .col-owner,.th-owner{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><span class="logo-icon">PA</span><span>PA-Toolkit 待办看板</span></div>
+  <span class="doc-title">需求与问题追踪</span>
+  <span class="topbar-right">小皮婴童食品 · 小红书种草营销AI工作流</span>
+</div>
+
+<div class="main">
+  <h1>PA-Toolkit 工作台 · 待办看板</h1>
+  <p class="subtitle">前端工作台的 bug / 内容质量 / UI / 新功能 专项追踪 &middot; 与业务进展 Tracker 分离 &middot; 最后更新 2026-06-16（市场部试用反馈 + B.10.20 前端结构调整）</p>
+
+  <!-- STAT CARDS -->
+  <div class="stats">
+    <div class="stat total"><div class="num">27</div><div class="label">总条目</div></div>
+    <div class="stat bug"><div class="num">8</div><div class="label"><span class="dot" style="background:var(--bug)"></span>Bug</div></div>
+    <div class="stat qual"><div class="num">2</div><div class="label"><span class="dot" style="background:var(--qual)"></span>内容质量</div></div>
+    <div class="stat ui"><div class="num">7</div><div class="label"><span class="dot" style="background:var(--ui)"></span>UI 优化</div></div>
+    <div class="stat feat"><div class="num">10</div><div class="label"><span class="dot" style="background:var(--feat)"></span>新功能</div></div>
+  </div>
+
+  <!-- URGENT -->
+  <div class="urgent">
+    <span class="pulse"></span>
+    <span><strong>最紧急 · B1</strong>：近两天生成全部失败（"生成失败，请重试"），阻塞全员试用 —— 建议优先排查（旺仔 / Jacobe）</span>
+  </div>
+
+  <!-- FILTER TABS -->
+  <div class="tabbar">
+    <span class="tab active" data-cat="all" onclick="filterCat(this,'all')">全部 <span class="cnt">27</span></span>
+    <span class="tab" data-cat="bug" onclick="filterCat(this,'bug')">🔴 Bug <span class="cnt">8</span></span>
+    <span class="tab" data-cat="qual" onclick="filterCat(this,'qual')">🟠 内容质量 <span class="cnt">2</span></span>
+    <span class="tab" data-cat="ui" onclick="filterCat(this,'ui')">🟡 UI 优化 <span class="cnt">7</span></span>
+    <span class="tab" data-cat="feat" onclick="filterCat(this,'feat')">🟢 新功能 <span class="cnt">10</span></span>
+  </div>
+
+  <!-- ════ BUG ════ -->
+  <div class="section bug" data-cat="bug">
+    <div class="section-head"><span class="sec-icon">&#128308;</span> Bug · 功能不正常 <span class="sec-cnt">8 项</span></div>
+    <div class="section-desc">功能行为与预期不符，需定位修复。优先级最高，先于新功能开发。</div>
+    <div class="section-body">
+      <table>
+        <tr><th>#</th><th class="col-item">问题</th><th>来源</th><th>状态</th><th class="th-owner">负责人</th><th>备注</th></tr>
+        <tr><td class="id-cell">B1</td><td class="col-item"><strong>近两天生成全部失败</strong>（"生成失败，请重试"）<span class="urgent-tag">最紧急</span></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">旺仔/Jacobe</td><td class="col-note">阻塞全员试用，建议今天先排查</td></tr>
+        <tr><td class="id-cell">B2</td><td class="col-item">油的所有痛点/场景仍是果泥的（数据未切换）</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
+        <tr><td class="id-cell">B3</td><td class="col-item"><strong>场景X 标签硬编码</strong>，始终显示"场景13"，未按实际场景动态展示</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
+        <tr><td class="id-cell">B4</td><td class="col-item">配图修改指令 AI 未理解（识别失败）</td><td><span class="src">B.10.18 / 市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">已知bug，复现确认</td></tr>
+        <tr><td class="id-cell">B5</td><td class="col-item">过往聊天记录无法找回</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
+        <tr><td class="id-cell">B6</td><td class="col-item">提示"稿件已更新"，实际未更新</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
+        <tr><td class="id-cell">B7</td><td class="col-item">全局概览切品类数据不更新</td><td><span class="src">B.10.18</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
+        <tr><td class="id-cell">B8</td><td class="col-item">全项目所有页面<strong>滑动到底部出现多余留白</strong></td><td><span class="src">B.10.20</span></td><td><span class="badge b-fix">待修复</span></td><td class="col-owner">技术</td><td class="col-note">统一前端微调</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════ QUALITY ════ -->
+  <div class="section qual" data-cat="qual">
+    <div class="section-head"><span class="sec-icon">&#128993;</span> 内容质量 <span class="sec-cnt">2 项</span></div>
+    <div class="section-desc">AI 生成内容本身的质量问题，涉及红线校验、卖点库数据与去 AI 味。</div>
+    <div class="section-body">
+      <table>
+        <tr><th>#</th><th class="col-item">问题</th><th>来源</th><th>状态</th><th class="th-owner">负责人</th><th>备注</th></tr>
+        <tr><td class="id-cell">Q1</td><td class="col-item"><strong>嘉宝出现"白砂糖"</strong> —— 红线校验漏检 或 卖点库数据问题</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-check">待排查</span></td><td class="col-owner">技术+市场部</td><td class="col-note">需排查根因（红线 Z3.3.9 / 卖点库）；延展：未来建立用户问题反馈机制</td></tr>
+        <tr><td class="id-cell">Q2</td><td class="col-item">生成内容 AI 味重</td><td><span class="src">持续</span></td><td><span class="badge b-prog">进行中</span></td><td class="col-owner">旺仔</td><td class="col-note">去AI味skill（同质化方案三条路径之一）</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════ UI ════ -->
+  <div class="section ui" data-cat="ui">
+    <div class="section-head"><span class="sec-icon">&#128992;</span> UI 优化 <span class="sec-cnt">7 项</span></div>
+    <div class="section-desc">界面布局、信息组织与交互体验优化，多数随 Andy 牵头的 PRD 统一排期。</div>
+    <div class="section-body">
+      <table>
+        <tr><th>#</th><th class="col-item">需求</th><th>来源</th><th>状态</th><th class="th-owner">负责人</th><th>备注</th></tr>
+        <tr><td class="id-cell">U1</td><td class="col-item">配置中心整体页面乱，需重新布局</td><td><span class="src">B.10.18 / 市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
+        <tr><td class="id-cell">U2</td><td class="col-item">AI模型板块显示<strong>真实模型名称</strong>；按钮放在<strong>选择该模型的环节之前</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">需想清楚模型选择在流程中的位置</td></tr>
+        <tr><td class="id-cell">U3</td><td class="col-item">配图建议展示格式统一</td><td><span class="src">B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
+        <tr><td class="id-cell">U4</td><td class="col-item"><strong>首页按场景分组+统一底色</strong>（场景二：痛点挖掘+数据爬取；场景三：内容策划+全局概览+爆款分析）；首页"A6"名称修改</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">配置中心/全局概览首页独立入口是否保留<strong>待确认</strong></td></tr>
+        <tr><td class="id-cell">U5</td><td class="col-item">品类选择交互：选定品类后<strong>禁止点击空白处直接退回</strong>上一级</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
+        <tr><td class="id-cell">U6</td><td class="col-item"><strong>痛点页展示改造</strong>：参考Excel格式、<strong>方格多列布局</strong>（每痛点=大标题+解释+痛点内容+右上角评分）；默认<strong>优先展示"品类汇总痛点"</strong>，其余靠后</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">解决当前纵向过长需多次滑动问题</td></tr>
+        <tr><td class="id-cell">U7</td><td class="col-item"><strong>痛点页精简</strong>：删除"挖掘/生成"按钮（仅留查看/调用）、删除语义不清的"分析期"标题、历史痛点只分两类（跨品类通用+当前品类专属）</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">前期不开放痛点生成入口</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════ FEATURE ════ -->
+  <div class="section feat" data-cat="feat">
+    <div class="section-head"><span class="sec-icon">&#128994;</span> 新功能 <span class="sec-cnt">10 项</span></div>
+    <div class="section-desc">尚未实现的新能力，需进入 PRD 拆分 → 串讲反串讲对齐 → 开发流程。</div>
+    <div class="section-body">
+      <table>
+        <tr><th>#</th><th class="col-item">需求</th><th>来源</th><th>状态</th><th class="th-owner">负责人</th><th>备注</th></tr>
+        <tr><td class="id-cell">F1</td><td class="col-item"><strong>产品库</strong>加入配置中心</td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
+        <tr><td class="id-cell">F2</td><td class="col-item">痛点/场景/D4/人设<strong>增加可选项</strong>：①选择入口处加 ②配置中心可编辑</td><td><span class="src">市场部6/16 / B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">关联人设编辑入口 + 自定义维度字段</td></tr>
+        <tr><td class="id-cell">F3</td><td class="col-item"><strong>封面标题</strong>(给用户看) 与 <strong>笔记标题</strong>(给系统看) 互补，封面标题直接放笔记标题后面</td><td><span class="src">市场部6/16 / B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">关联双标题+压字建议需求</td></tr>
+        <tr><td class="id-cell">F4</td><td class="col-item">分品类 <strong>D2–D4 prompt 可配置</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
+        <tr><td class="id-cell">F5</td><td class="col-item">已确认内容<strong>流转到飞书多维表格</strong>（"小红PA数据呈现"），并<strong>汇总为一篇文章</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术(Jacobe)</td><td class="col-note">关联飞书部署链路</td></tr>
+        <tr><td class="id-cell">F6</td><td class="col-item">每个生成过程展示<strong>参考了哪些文档</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">—</td></tr>
+        <tr><td class="id-cell">F7</td><td class="col-item"><strong>修改意见不覆盖原文</strong>，支持修改前后<strong>版本对比</strong></td><td><span class="src">市场部6/16</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">区别于品类版本对比</td></tr>
+        <tr><td class="id-cell">F8</td><td class="col-item">内容稿件池新增<strong>笔记链接字段</strong></td><td><span class="src">B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">仅已发布内容有链接</td></tr>
+        <tr><td class="id-cell">F9</td><td class="col-item">红线<strong>字数规则前端校验</strong>（最佳300字/不超400字）</td><td><span class="src">B.10.18</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">不新增配置项，仅校验现有规则</td></tr>
+        <tr><td class="id-cell">F10</td><td class="col-item"><strong>数据爬取入口前期对普通用户隐藏</strong>，移到痛点页面内并标记"待上线/未来开放"</td><td><span class="src">B.10.20</span></td><td><span class="badge b-dev">待开发</span></td><td class="col-owner">技术</td><td class="col-note">功能未稳定，前期降低使用门槛</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="legend">
+      <span><span class="badge b-fix">待修复</span> Bug 待定位修复</span>
+      <span><span class="badge b-check">待排查</span> 需排查根因</span>
+      <span><span class="badge b-prog">进行中</span> 已在处理</span>
+      <span><span class="badge b-dev">待开发</span> 待排期开发</span>
+    </div>
+    <div>来源标记：<code>市场部6/16</code> = 市场部试用反馈；<code>B.10.x</code> = 对应会议纪要（B.10.18=6/15产品需求评审；B.10.20=6/16前端结构调整）。前端需求统一遵循 bug / UI / 功能 三类规范，由 Andy 牵头产出需求文档 → 串讲反串讲对齐 → 开发。</div>
+  </div>
+</div>
+
+<script>
+function filterCat(el, cat){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.section').forEach(s=>{
+    s.classList.toggle('hidden', cat!=='all' && s.dataset.cat!==cat);
+  });
+}
+</script>
+</body>
+</html>
